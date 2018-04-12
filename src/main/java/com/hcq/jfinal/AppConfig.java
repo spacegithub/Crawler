@@ -1,5 +1,6 @@
 package com.hcq.jfinal;
 
+import com.hcq.bean.Prodoct_jd;
 import com.hcq.bean.User;
 import com.hcq.controller.IndexController;
 import com.hcq.controller.UserController;
