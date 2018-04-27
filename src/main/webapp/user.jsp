@@ -8,8 +8,8 @@
 </head>
 <body>
 用户页
-<form>
-
+<form action="/jfinal/user/showE">
+<button>确认</button>
 </form>
 
 </body>

@@ -1,9 +1,14 @@
 package com.hcq.jfinal;
 
-import com.hcq.bean.Prodoct_jd;
-import com.hcq.bean.User;
+import cn.dreampie.quartz.QuartzPlugin;
+
+import com.hcq.bean.Product;
 import com.hcq.controller.IndexController;
-import com.hcq.controller.UserController;
+import com.hcq.controller.ProductController;
+import com.hcq.service.GPCrawlerService;
+import com.hcq.service.JDCrawlerService;
+import com.hcq.service.TBCrawlerService;
+import com.hcq.util.SchedulerPlugin;
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
 import com.jfinal.config.Interceptors;
@@ -12,8 +17,10 @@ import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.cron4j.Cron4jPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.render.ViewType;
+import com.jfinal.template.Engine;
 
 public class AppConfig extends JFinalConfig{
 
@@ -62,8 +69,23 @@ public class AppConfig extends JFinalConfig{
 			
 			//添加Model类和数据库表的映射。user指的是表名，userid指的是主键
 			ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
-			activeRecordPlugin.addMapping("user","userid", User.class);
+			activeRecordPlugin.addMapping("product_data","id", Product.class);
 			plugins.add(activeRecordPlugin);
+			/*配置定时任务*/  
+//			SchedulerPlugin inventoryQuartzTask = new SchedulerPlugin("quartz.properties");
+//			plugins.add(inventoryQuartzTask);
+			
+//			 QuartzPlugin quartz = new QuartzPlugin();
+//		     quartz.setJobs("quartzJob.properties");
+//		     plugins.add(quartz);
+			
+			 //配置任务调度插件 
+			  Cron4jPlugin cp = new Cron4jPlugin(); 
+			  cp.addTask("15 12 * * *", new JDCrawlerService()); 
+			  cp.addTask("16 12 * * *", new GPCrawlerService()); 
+			  cp.addTask("17 12 * * *", new TBCrawlerService()); 
+			  plugins.add(cp); 
+			
 	}
 
 	
@@ -75,6 +97,12 @@ public class AppConfig extends JFinalConfig{
 	@Override
 	public void configRoute(Routes routes) {
 		routes.add("/", IndexController.class);
-		routes.add("/user", UserController.class);
+		routes.add("/product", ProductController.class);
+	}
+
+	@Override
+	public void configEngine(Engine me) {
+		// TODO Auto-generated method stub
+		
 	}
 }
