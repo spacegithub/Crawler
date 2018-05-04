@@ -67,7 +67,7 @@ public class AppConfig extends JFinalConfig{
 			druidPlugin.setFilters("stat,wall");
 			plugins.add(druidPlugin);
 			
-			//添加Model类和数据库表的映射。user指的是表名，userid指的是主键
+			//添加Model类和数据库表的映射。product_data指的是表名，id指的是主键
 			ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
 			activeRecordPlugin.addMapping("product_data","id", Product.class);
 			plugins.add(activeRecordPlugin);
@@ -81,9 +81,9 @@ public class AppConfig extends JFinalConfig{
 			
 			 //配置任务调度插件 
 			  Cron4jPlugin cp = new Cron4jPlugin(); 
-			  cp.addTask("15 12 * * *", new JDCrawlerService()); 
-			  cp.addTask("16 12 * * *", new GPCrawlerService()); 
-			  cp.addTask("17 12 * * *", new TBCrawlerService()); 
+			  cp.addTask("07 18 * * *", new JDCrawlerService()); 
+			  cp.addTask("07 18 * * *", new GPCrawlerService()); 
+//			  cp.addTask("28 17 * * *", new TBCrawlerService()); 
 			  plugins.add(cp); 
 			
 	}

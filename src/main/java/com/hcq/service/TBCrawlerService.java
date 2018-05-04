@@ -36,8 +36,11 @@ public class TBCrawlerService extends Thread{
 	public void run(){
 		List<Product_tb> list;
 		try {
-			list = getMsg("https://sf.taobao.com/item_list.htm?category=50025969&city=%C9%CF%BA%A3&sorder=2");
-			add(list);
+			list = getMsg("https://sf.taobao.com/item_list.htm?category=50025969&city=%C9%CF%BA%A3");
+			for (int i = 0; i < list.size(); i++) {
+				findProduct(list.get(i));
+			}
+//			add(list);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -371,5 +374,57 @@ public class TBCrawlerService extends Thread{
 		}
 		System.out.println("淘宝完成");
 		return list;
+	}
+
+	public boolean addPro(Product_tb p) {
+			Record product = new Record().set("city", p.getCity())
+					.set("addr", p.getTitle())
+					.set("community_name", p.getCommunity_name())
+					.set("plate", p.getPlate())
+					.set("house_type", p.getHouse_type())
+					.set("type", p.getType())
+					.set("structure", p.getStructure())
+					.set("floor", p.getFloor())
+					.set("build_area", p.getBuild_area())
+					.set("completionDate", p.getCompletionDate())
+					.set("degree", p.getDegree())
+					.set("currentPriceCN", p.getInitialPrice())
+					.set("assessmentPriceCN", p.getConsultPrice())
+					.set("bond", p.getBond())
+					.set("marketPrice", p.getMarketPrice())
+					.set("section", p.getSection())
+					.set("startDate", p.getStartDate())
+					.set("endDate", p.getEndDate())
+					.set("collection_date", p.getCollection_date())
+					.set("lease", p.getLease())
+					.set("taxation", p.getTaxation())
+					.set("shopName", p.getShopName())
+					.set("intermediary", p.getIntermediary())
+					.set("countNum", p.getCountNum())
+					.set("tel", p.getTel())
+					.set("around", p.getAround())
+					.set("list_pic", p.getList_pic())
+					.set("house_pic", p.getHouse_pic())
+					.set("taxation_num", p.getTaxation_num())
+					.set("commission", p.getCommission())
+					.set("cost", p.getCost())
+					.set("result", p.getResult())
+					.set("is_choice", p.getIs_choice())
+					.set("house_detail", p.getItemUrl())
+					.set("house_theme", p.getHouse_theme())
+					.set("bidCount", p.getBidCount())
+					.set("premium", p.getPremium())
+					.set("premium_rate", p.getPremium_rate());
+			Db.save("product_data", "id", product);
+		return true;
+	}
+	
+	public void findProduct(Product_tb p){
+		List<Record> pro_list = Db.find("select count(*) from product_data where house_detail = ? and startDate = ? and endDate = ?",p.getHouse_detail(),p.getStartDate(),p.getEndDate());
+		if(pro_list.size()!=0){
+			Db.update("update product_data set result = ? where house_detail = ? and startDate = ? and endDate = ?",p.getResult(),p.getHouse_detail(),p.getStartDate(),p.getEndDate());
+		}else{
+			addPro(p);
+		}
 	}
 }

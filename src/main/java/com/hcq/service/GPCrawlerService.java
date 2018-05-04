@@ -36,7 +36,10 @@ public class GPCrawlerService extends Thread implements Runnable {
 		List<Product> list;
 		try {
 			list = getMsg("http://s.gpai.net/sf/search.do?cityNum=31&at=376");
-			add(list);
+			for (int i = 0; i < list.size(); i++) {
+				findProduct(list.get(i));
+			}
+//			add(list);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -72,7 +75,8 @@ public class GPCrawlerService extends Thread implements Runnable {
 		DataCapture dc = new DataCapture();
 		String collection_date = sdf.format(date);
 		Document doc = dc.getDoc(url);
-		for (int page=1; page <= 1; page++) {
+		
+		for (int page=1; page <= 10; page++) {
 			String new_url = url + "&Page=" + page;
 			System.out.println(new_url);
 			doc = dc.getDoc(new_url);
@@ -541,4 +545,59 @@ public class GPCrawlerService extends Thread implements Runnable {
 		System.out.println("公拍完成");
 		return true;
 	}
+	
+	public boolean addPro(Product p){
+			Record product = new Record()
+			.set("city", p.getCity())
+			.set("addr", p.getTitle())
+			.set("community_name", p.getCommunity_name())
+			.set("plate", p.getPlate())
+			.set("house_type",p.getHouse_type())
+			.set("type", p.getType())
+			.set("structure", p.getStructure())
+			.set("floor", p.getFloor())
+			.set("build_area", p.getBuild_area())
+			.set("completionDate", p.getCompletionDate())
+			.set("degree", p.getDegree())
+			.set("currentPriceCN", p.getCurrentPriceCN())
+			.set("assessmentPriceCN", p.getAssessmentPriceCN())
+			.set("bond", p.getBond())
+			.set("marketPrice", p.getMarketPrice())
+			.set("section", p.getSection())
+			.set("startDate", p.getStartDate())
+			.set("endDate", p.getEndDate())
+			.set("collection_date", p.getCollection_date())
+			.set("lease", p.getLease())
+			.set("taxation", p.getTaxation())
+			.set("shopName", p.getShopName())
+			.set("intermediary", p.getIntermediary())
+			.set("countNum", p.getCountNum())
+			.set("tel", p.getTel())
+			.set("around", p.getAround())
+			.set("list_pic", p.getList_pic())
+			.set("house_pic", p.getHouse_pic())
+			.set("taxation_num", p.getTaxation_num())
+			.set("commission", p.getCommission())
+			.set("cost", p.getCost())
+			.set("result", p.getResult())
+			.set("is_choice", p.getIs_choice())
+			.set("house_detail", p.getHouse_detail())
+			.set("house_theme", p.getHouse_theme())
+			.set("bidCount", p.getBidCount())
+			.set("premium", p.getPremium())
+			.set("premium_rate", p.getPremium_rate())
+			;
+			Db.save("product_data","id", product);
+		return true;
+	}
+	
+	public void findProduct(Product p){
+		List<Record> pro_list = Db.find("select count(*) from product_data where house_detail = ? and startDate = ? and endDate = ?",p.getHouse_detail(),p.getStartDate(),p.getEndDate());
+		if(pro_list.size()!=0){
+			Db.update("update product_data set result = ? where house_detail = ? and startDate = ? and endDate = ?",p.getResult(),p.getHouse_detail(),p.getStartDate(),p.getEndDate());
+		}else{
+			addPro(p);
+		}
+	}
+	
 }
