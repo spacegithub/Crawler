@@ -2,6 +2,9 @@ package com.hcq.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +28,10 @@ public class ProductController extends Controller{
 		render("/product.jsp");
 	}
 	public void getAllMsg(){
-		String sql = "select * from product_data";
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date d = new Date();
+		String date = df.format(d);
+		String sql = "select * from product_data where TO_DAYS( NOW( ) ) - TO_DAYS(collection_date) <= 1 ";
 		Map<String, String> titleData =  new LinkedHashMap();//标题，后面用到
        
         titleData.put("city", "区域");

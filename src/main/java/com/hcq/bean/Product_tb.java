@@ -3,7 +3,13 @@ package com.hcq.bean;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Product_tb {
+import com.jfinal.plugin.activerecord.Model;
+
+public class Product_tb extends Model<Product_tb>{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private long id;
 	private String city;// 区域
 	private String title;// 标题
@@ -50,6 +56,7 @@ public class Product_tb {
 	private String completionDate; //竣工日期
 	private String lease; //租赁情况
 	private String itemUrl; //淘宝所需商品链接
+	private String type2;
 	public Product_tb() {
 		super();
 	}
@@ -445,6 +452,15 @@ public class Product_tb {
 	public void setItemUrl(String itemUrl) {
 		this.itemUrl = itemUrl;
 	}
+	
+
+	public String getType2() {
+		return type2;
+	}
+
+	public void setType2(String type2) {
+		this.type2 = type2;
+	}
 
 	private String transferLongToDate(String dateFormat, Long millSec) {
 
@@ -458,19 +474,11 @@ public class Product_tb {
 
 	@Override
 	public String toString() {
-		return "Product [id=" + id + ", 区域=" + city + ", 标题=" + title
-				+ ", 地址=" + addr + ", 楼盘名称=" + community_name
-				+ ", 开始日=" + startDate + ", 结束日=" + endDate
-				+ ", 起拍价=" + initialPrice + ", 评估价="
-				+ consultPrice + ", albumId=" + albumId + ", vendorId="
-				+ vendorId + ", 执行法院=" + shopName + ", 拍卖次数="
-				+ countNum + ", 拍卖机构=" + intermediary + ", 房屋类型="
-				+ type + ", 建筑面积=" + build_area + ", 保证金=" + bond
-				+ ", 采集日=" + collection_date + ", 房屋结构="
-				+ structure + ", 咨询电话=" + tel + ", 出价次数=" + bidCount
-				+ ", 税费承担=" + taxation + ", 当前层数=" + floor + ", 竣工日期=" + completionDate 
-				+ ", 租赁情况=" + lease + "]";
+		return "Product_tb [startDate=" + startDate + ", endDate=" + endDate
+				+ ", result=" + result + ", itemUrl=" + itemUrl + "]";
 	}
+
+	
 
 	
 

@@ -3,6 +3,8 @@ package com.hcq.jfinal;
 import cn.dreampie.quartz.QuartzPlugin;
 
 import com.hcq.bean.Product;
+import com.hcq.bean.Product_tb;
+import com.hcq.controller.CrawlerController;
 import com.hcq.controller.IndexController;
 import com.hcq.controller.ProductController;
 import com.hcq.service.GPCrawlerService;
@@ -70,6 +72,7 @@ public class AppConfig extends JFinalConfig{
 			//添加Model类和数据库表的映射。product_data指的是表名，id指的是主键
 			ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
 			activeRecordPlugin.addMapping("product_data","id", Product.class);
+			activeRecordPlugin.addMapping("product_data","id", Product_tb.class);
 			plugins.add(activeRecordPlugin);
 			/*配置定时任务*/  
 //			SchedulerPlugin inventoryQuartzTask = new SchedulerPlugin("quartz.properties");
@@ -81,9 +84,10 @@ public class AppConfig extends JFinalConfig{
 			
 			 //配置任务调度插件 
 			  Cron4jPlugin cp = new Cron4jPlugin(); 
-			  cp.addTask("07 18 * * *", new JDCrawlerService()); 
-			  cp.addTask("07 18 * * *", new GPCrawlerService()); 
-//			  cp.addTask("28 17 * * *", new TBCrawlerService()); 
+			  cp.addTask("00 20 * * *", new JDCrawlerService()); 
+			  cp.addTask("00 20 * * *", new GPCrawlerService()); 
+			  cp.addTask("00 20 * * *", new TBCrawlerService()); 
+//			  cp.addTask("20 10 * * *", new CrawlerController()); 
 			  plugins.add(cp); 
 			
 	}

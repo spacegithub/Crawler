@@ -51,6 +51,7 @@ public class Product extends Model<Product> {
 	private String completionDate; //竣工日期
 	private String lease; //租赁情况
 	private String itemUrl; //淘宝所需商品链接
+	private String type2;
 	public Product() {
 		super();
 	}
@@ -441,6 +442,15 @@ public class Product extends Model<Product> {
 
 	public void setItemUrl(String itemUrl) {
 		this.itemUrl = itemUrl;
+	}
+	
+
+	public String getType2() {
+		return type2;
+	}
+
+	public void setType2(String type2) {
+		this.type2 = type2;
 	}
 
 	private String transferLongToDate(String dateFormat, Long millSec) {

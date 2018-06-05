@@ -18,6 +18,16 @@ public class JsonToClass {
 		 return jsonArray;
 	}
 	
+	public JSONArray getData(String url){
+		 JsonToStr t = new JsonToStr();
+		 String products = t.getJson(url);
+		 Gson gson = new Gson();
+		 Map<String, Object> map = new HashMap<String, Object>();
+		 map = gson.fromJson(products, map.getClass());
+		 JSONArray jsonArray=JSONArray.fromObject(map.get("data"));
+		 return jsonArray;
+	}
+	
 	public JSONObject getJSONObj(String url){
 		JsonToStr t = new JsonToStr();
 		String products = t.getJson(url);

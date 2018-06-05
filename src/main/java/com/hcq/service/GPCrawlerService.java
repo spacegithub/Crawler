@@ -35,10 +35,10 @@ public class GPCrawlerService extends Thread implements Runnable {
 	public void run(){
 		List<Product> list;
 		try {
-			list = getMsg("http://s.gpai.net/sf/search.do?cityNum=31&at=376");
-			for (int i = 0; i < list.size(); i++) {
-				findProduct(list.get(i));
-			}
+			getMsg("http://s.gpai.net/sf/search.do?cityNum=31&at=376");
+//			for (int i = 0; i < list.size(); i++) {
+//				findProduct(list.get(i));
+//			}
 //			add(list);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -76,7 +76,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 		String collection_date = sdf.format(date);
 		Document doc = dc.getDoc(url);
 		
-		for (int page=1; page <= 10; page++) {
+		for (int page=1; page <= total_page; page++) {
 			String new_url = url + "&Page=" + page;
 			System.out.println(new_url);
 			doc = dc.getDoc(new_url);
@@ -174,6 +174,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				startDate = startDateArr.get(num).substring(5,startDateArr.get(num).length());
 	        				if(startDate.indexOf(" ")!=-1)
 	        				startDate = startDate.substring(0,startDate.indexOf(" "));
+	        				startDate.replaceAll("-", "/");
 	        				p.setStartDate(startDate);
 	        			}
 	        			//建筑面积
@@ -203,68 +204,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				title = title.substring(title.indexOf("上海"),title.length());
 	        			}
 	        			p.setTitle(title);
-	        			String _addr = dc.reg(title, prop.getProperty("addr_test"));
-	        			String get_Lng_Lat = "";
-	        			if(_addr==null){
-	        				String title1 = "";
-	        				System.out.println("title="+title);
-	        				if(title.length()>30){
-	        					title1 = title.substring(0,30);
-	        					get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+title1+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";	
-	        				}else{
-	        					get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+title+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";	
-	        				}
-	        			}else{
-	        				String addr1 = "";
-	        				System.out.println("_addr="+_addr);
-	        				if(_addr.length()>30){
-	        					addr1 = _addr.substring(0,30);
-	        					get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+addr1+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
-	        				}else{
-	        					get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+_addr+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
-	        				}
-	        			}
-	        			JSONObject resultJSONObj = jtc.getJSONObj(get_Lng_Lat);
-	        			//取出location元素
-	        			String lat = "";
-	        			String lng = "";
-	        			if(resultJSONObj!=null){
-	        				JSONObject resultJSON = resultJSONObj.getJSONObject("result");
-	        			if(!resultJSON.isNullObject()){
-	        				JSONObject locationObj = resultJSON.getJSONObject("location"); 
-	        				if(locationObj!=null){
-	        					//纬度
-	        					lat = locationObj.getString("lat");
-	        					//经度
-	        					lng = locationObj.getString("lng");
-	        				}
-	        			}
-	        			}
 	        			
-	        			String getAddrUrl = "http://api.map.baidu.com/geocoder/v2/?callback=renderReverse&location="+lat+","+lng+"&output=json&pois=1&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
-	        			JSONObject addrJSONObj = jtc.getJSONObj(getAddrUrl);
-	        			JSONObject addrJSON = addrJSONObj.getJSONObject("result");
-	        			String district = null;
-	        			if(!addrJSON.isNullObject()){
-	        				JSONObject addressComponent = addrJSON.getJSONObject("addressComponent");
-	        				district = addressComponent.getString("district");
-	        				//所在小区
-	        				JSONArray poiRegionsArray = addrJSON.getJSONArray("poiRegions");
-	        				if(poiRegionsArray.size()!=0){
-	        					String community_name1 = poiRegionsArray.getJSONObject(0).getString("name");
-	        					p.setCommunity_name(community_name1);
-	        				}
-	        			}
-	        			
-	        			
-	        			String city = dc.reg(detail_doc.title(),prop.getProperty("city"));
-	        			if(city!=null){
-	        				p.setCity(city);
-	        			}else{
-	        				if(district!=null){
-		        				p.setCity(district.substring(0,2));
-		        			}
-	        			}
 	        		
 	        			//房屋结构
 	        			String structure = dc.reg(detail_doc.html(),prop.getProperty("structure"));
@@ -282,7 +222,8 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");  
 	        				if( pattern.matcher(replace).matches()){
 	        					cprice = Integer.valueOf(replace);
-	        					p.setCurrentPriceCN(replace.substring(0,replace.length()-4)+"万");
+//	        					p.setCurrentPriceCN(replace.substring(0,replace.length()-4)+"万");
+	        					p.setCurrentPriceCN(replace.substring(0,replace.length()-4)+"."+replace.substring(replace.length()-4,replace.length()));
 	        				}
 	        			}
 	                		
@@ -302,17 +243,18 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        			}else{
 	        				p.setTel(detail_doc.getElementsByClass("xq-cont202-tel").text());
 	        			}
-	        			//出价次数
-	        			if(bidArr.size()!=0)
-	        				p.setBidCount(Integer.valueOf(bidArr.get(num)));
+	        			
 	        			
 	        			if(rs){//item.do
+	        				//出价次数
+		        			if(bidArr.size()!=0)
+		        				p.setBidCount(Integer.valueOf(bidArr.get(num)));
 	        				//拍卖结果
 	        				String getresult_url = "http://www.gpai.net/sf/Item_Ajax.do?action=ITEMAREA&Web_Item_ID="+ids+"&r=0.48474475069989564";
 	        				Document result_doc = dc.getDoc(getresult_url);
-	        				 Elements xqs = result_doc.getElementsByClass("xq-time1");
+	        				 Elements xqs = result_doc.getElementsByClass("h33");
 	        				 if(xqs.size()!=0){
-	        					 String re_html_span = xqs.get(0).text();
+	        					 String re_html_span = xqs.text();
 	        					 p.setResult(re_html_span);
 	        				 }
 	        				
@@ -327,12 +269,10 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				if(build_area!=null){
 	        					build_area = build_area.substring(4,build_area.length());
 	        					if(build_area.indexOf("建筑面积")!=-1){
-	        						p.setBuild_area(build_area.substring(5,build_area.length()));
-	        					}else{
-	        						if(build_area.indexOf("：")!=-1){
-	        							p.setBuild_area(build_area.substring(1,build_area.length()));
-	        						}else{
-	        							p.setBuild_area(build_area);
+	        						if(build_area.indexOf("㎡")!=-1){
+	        							p.setBuild_area(build_area.substring(5,build_area.indexOf("㎡")));
+	        						}else if(build_area.indexOf("m2")!=-1){
+	        							p.setBuild_area(build_area.substring(5,build_area.indexOf("m2")));
 	        						}
 	        					}
 	        				}
@@ -358,7 +298,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				//房屋类型
 	        				type = dc.reg(html, prop.getProperty("type"));
 		        			p.setType(type);
-	        				
+		        			p.setType2(dc.reg(html, prop.getProperty("type2")));
 		        			
 		        			
 		        			
@@ -376,8 +316,12 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				}
 	        				//地址
 	        				addr = dc.reg(html, prop.getProperty("addr"));
-	        				if(null!=addr)
-	        				p.setAddr(addr.substring(4,addr.length()));
+	        				if(null!=addr){
+	        					if(addr.indexOf("上海市")!=-1){
+	        						addr.substring(addr.indexOf("上海市")+3,addr.length());
+	        					  }
+	        					p.setAddr(addr.substring(4,addr.length()));
+	        				}
 	        				
 	        				//评估价
 	        				assessmentPriceCN = dc.reg(html_li, prop.getProperty("assessmentPriceCN_gp_li"));
@@ -385,7 +329,8 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        					String new_s = assessmentPriceCN.substring(6, assessmentPriceCN.length()-2);
 								String new_ss = new_s.replace(",", "");
 								if(new_ss.length()>4)
-								p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"万");	        					
+//								p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"万");	 
+								p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"."+new_ss.substring(new_ss.length()-4, new_ss.length()));
 	        				}
 	        				
 	        				//拍卖次数
@@ -408,7 +353,8 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        					String bond1 = bond.substring(6, bond.length()-1).replace(" ", "");
 								String newBond1 = bond1.replace(",", "");
 								if(newBond1.length()>4)
-								p.setBond(newBond1.substring(0, newBond1.length()-4)+"万");
+									p.setBond(newBond1.substring(0, 3)+"."+newBond1.substring(3,newBond1.length()));
+//								p.setBond(newBond1.substring(0, newBond1.length()-4)+"万");
 							}
 	        				//税费分担
 		        			if(taxation!=null)
@@ -416,10 +362,18 @@ public class GPCrawlerService extends Thread implements Runnable {
 		        			
 		        			//执行法院
 		        			shopName = dc.reg(html_li, prop.getProperty("shopName"));
-		        			if(null!=shopName)
-		        				p.setShopName(shopName.substring(5,shopName.length()));
+		        			if(shopName!=null){
+		        				shopName = shopName.substring(5,shopName.length());		        				
+		        				if(shopName.indexOf("法院")!=-1)
+		        				p.setShopName(shopName.substring(0,shopName.indexOf("法院")+2));
+		        			}
 		        			
 	        			}else{//item2.do
+	        				//出价次数
+	        				Elements shu = detail_doc.select("span#html_Bid_Shu");
+	        				String a =shu.get(0).text();
+	        				int count = Integer.valueOf(a);
+	        				p.setBidCount(count);
 	        				//租赁情况
 	        				lease = dc.reg(html_span,prop.getProperty("lease2"));
 	        				if(lease!=null)
@@ -433,7 +387,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				//竣工日期
 	        				completionDate = dc.reg(html_p, prop.getProperty("completionDate2"));
 	        				if(completionDate!=null)
-	        				p.setCompletionDate(completionDate.substring(5,completionDate.length()));
+	        				p.setCompletionDate(completionDate.substring(5,9));
 	        				//结束时间
 	        				endDate = dc.reg(html_p,prop.getProperty("startDate2"));
 	        				if(endDate!=null){
@@ -445,12 +399,14 @@ public class GPCrawlerService extends Thread implements Runnable {
 	        				//房屋类型
 	        				type = dc.reg(html_span, prop.getProperty("type"));
 		        			p.setType(type);
+		        			p.setType2(dc.reg(html_span, prop.getProperty("type2")));
 		        			//评估价
 		        			if(null!=assessmentPriceCN){
 		        				String new_s = assessmentPriceCN.substring(4, assessmentPriceCN.length()-2);
 								String new_ss = new_s.replace(",", "");
 								if(new_ss.length()>4)
-								p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"万");
+//								p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"万");
+									p.setAssessmentPriceCN(new_ss.substring(0, new_ss.length()-4)+"."+new_ss.substring(new_ss.length()-4, new_ss.length()));
 		        			}
 		        			
 		        			//拍卖次数
@@ -469,7 +425,12 @@ public class GPCrawlerService extends Thread implements Runnable {
 		        			if(null!=bond) {
 		        				bond = bond.replace(",", "");
 		        				bond = bond.replace(" ", "");
-								p.setBond(bond.substring(4, bond.length()-5)+"万");
+//								p.setBond(bond.substring(4, bond.length()-5)+"万");
+		        				bond = bond.substring(4, bond.length()-5)+"."+bond.substring(bond.length()-5, bond.length());
+		        				if(bond.indexOf("元")!=-1){
+		        					bond.replace("元", "");
+		        				}
+		        				p.setBond(bond);
 							}
 		        			
 		        			//税费分担
@@ -478,12 +439,22 @@ public class GPCrawlerService extends Thread implements Runnable {
 //		        				p.setTaxation(taxation.substring(5,taxation.length()-1));
 		        			
 		        			//执行法院
-		        			if(null!=shopName)
-		        				p.setShopName(shopName.substring(5,shopName.length()));
+		        			if(null!=shopName){
+		        				shopName = shopName.substring(5,shopName.length());
+		        				if(shopName.indexOf("法院")!=-1){
+		        					p.setShopName(shopName.substring(0,shopName.indexOf("法院")+2));
+		        				}
+		        			}
 	        			}
-	        			
+	        			int psize = findProduct(p);
+	        			if(psize!=0){
+	        				Db.update("update product_data set result = ? where house_detail = ?",p.getResult(),p.getHouse_detail());
+	        			}else{
+	        				getCityAAAA(p, dc,prop,detail_doc,jtc);
+	        				addPro(p);
+	        			}
 	        			System.out.println(p);
-	        			list.add(p);
+//	        			list.add(p);
 	        			num++;
 	        			k++;
         			}else if(k==2){
@@ -498,53 +469,6 @@ public class GPCrawlerService extends Thread implements Runnable {
 	}
 	
 	
-	public boolean add(List<Product> list){
-		for (int i = 0; i < list.size(); i++) {
-			Record product = new Record()
-			.set("city", list.get(i).getCity())
-			.set("addr", list.get(i).getTitle())
-			.set("community_name", list.get(i).getCommunity_name())
-			.set("plate", list.get(i).getPlate())
-			.set("house_type",list.get(i).getHouse_type())
-			.set("type", list.get(i).getType())
-			.set("structure", list.get(i).getStructure())
-			.set("floor", list.get(i).getFloor())
-			.set("build_area", list.get(i).getBuild_area())
-			.set("completionDate", list.get(i).getCompletionDate())
-			.set("degree", list.get(i).getDegree())
-			.set("currentPriceCN", list.get(i).getCurrentPriceCN())
-			.set("assessmentPriceCN", list.get(i).getAssessmentPriceCN())
-			.set("bond", list.get(i).getBond())
-			.set("marketPrice", list.get(i).getMarketPrice())
-			.set("section", list.get(i).getSection())
-			.set("startDate", list.get(i).getStartDate())
-			.set("endDate", list.get(i).getEndDate())
-			.set("collection_date", list.get(i).getCollection_date())
-			.set("lease", list.get(i).getLease())
-			.set("taxation", list.get(i).getTaxation())
-			.set("shopName", list.get(i).getShopName())
-			.set("intermediary", list.get(i).getIntermediary())
-			.set("countNum", list.get(i).getCountNum())
-			.set("tel", list.get(i).getTel())
-			.set("around", list.get(i).getAround())
-			.set("list_pic", list.get(i).getList_pic())
-			.set("house_pic", list.get(i).getHouse_pic())
-			.set("taxation_num", list.get(i).getTaxation_num())
-			.set("commission", list.get(i).getCommission())
-			.set("cost", list.get(i).getCost())
-			.set("result", list.get(i).getResult())
-			.set("is_choice", list.get(i).getIs_choice())
-			.set("house_detail", list.get(i).getHouse_detail())
-			.set("house_theme", list.get(i).getHouse_theme())
-			.set("bidCount", list.get(i).getBidCount())
-			.set("premium", list.get(i).getPremium())
-			.set("premium_rate", list.get(i).getPremium_rate())
-			;
-			Db.save("product_data","id", product);
-		}
-		System.out.println("公拍完成");
-		return true;
-	}
 	
 	public boolean addPro(Product p){
 			Record product = new Record()
@@ -562,7 +486,7 @@ public class GPCrawlerService extends Thread implements Runnable {
 			.set("currentPriceCN", p.getCurrentPriceCN())
 			.set("assessmentPriceCN", p.getAssessmentPriceCN())
 			.set("bond", p.getBond())
-			.set("marketPrice", p.getMarketPrice())
+			.set("marketPrice", "0")
 			.set("section", p.getSection())
 			.set("startDate", p.getStartDate())
 			.set("endDate", p.getEndDate())
@@ -590,14 +514,76 @@ public class GPCrawlerService extends Thread implements Runnable {
 			Db.save("product_data","id", product);
 		return true;
 	}
-	
-	public void findProduct(Product p){
-		List<Record> pro_list = Db.find("select count(*) from product_data where house_detail = ? and startDate = ? and endDate = ?",p.getHouse_detail(),p.getStartDate(),p.getEndDate());
-		if(pro_list.size()!=0){
-			Db.update("update product_data set result = ? where house_detail = ? and startDate = ? and endDate = ?",p.getResult(),p.getHouse_detail(),p.getStartDate(),p.getEndDate());
+	public void getCityAAAA(Product p,DataCapture dc,Properties prop,Document detail_doc,JsonToClass jtc){
+		String _addr = dc.reg(p.getTitle(), prop.getProperty("addr_test"));
+		String get_Lng_Lat = "";
+		if(_addr==null){
+			String title1 = "";
+			System.out.println("title="+p.getTitle());
+			if(p.getTitle().length()>30){
+				title1 = p.getTitle().substring(0,30);
+				get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+title1+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";	
+			}else{
+				get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+p.getTitle()+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";	
+			}
 		}else{
-			addPro(p);
+			String addr1 = "";
+			System.out.println("_addr="+_addr);
+			if(_addr.length()>20){
+				addr1 = _addr.substring(0,20);
+				addr1.replace("%", "");
+				get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+addr1+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
+			}else{
+				get_Lng_Lat = "http://api.map.baidu.com/geocoder/v2/?address="+_addr+"&output=json&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
+			}
 		}
+		JSONObject resultJSONObj = jtc.getJSONObj(get_Lng_Lat);
+		//取出location元素
+		String lat = "";
+		String lng = "";
+		if(resultJSONObj!=null){
+			JSONObject resultJSON = resultJSONObj.getJSONObject("result");
+		if(!resultJSON.isNullObject()){
+			JSONObject locationObj = resultJSON.getJSONObject("location"); 
+			if(locationObj!=null){
+				//纬度
+				lat = locationObj.getString("lat");
+				//经度
+				lng = locationObj.getString("lng");
+			}
+		}
+		}
+		
+		String getAddrUrl = "http://api.map.baidu.com/geocoder/v2/?callback=renderReverse&location="+lat+","+lng+"&output=json&pois=1&ak=lYMpqrGu4iT9wWNGnzjAnGDTqHjkfCH2";
+		JSONObject addrJSONObj = jtc.getJSONObj(getAddrUrl);
+		JSONObject addrJSON = addrJSONObj.getJSONObject("result");
+		String district = null;
+		if(!addrJSON.isNullObject()){
+			JSONObject addressComponent = addrJSON.getJSONObject("addressComponent");
+			district = addressComponent.getString("district");
+			//所在小区
+			JSONArray poiRegionsArray = addrJSON.getJSONArray("poiRegions");
+			if(poiRegionsArray.size()!=0){
+				String community_name1 = poiRegionsArray.getJSONObject(0).getString("name");
+				p.setCommunity_name(community_name1);
+			}
+		}
+		
+		
+		String city = dc.reg(detail_doc.title(),prop.getProperty("city"));
+		if(city!=null){
+			p.setCity(city);
+		}else{
+			if(district!=null){
+				p.setCity(district.substring(0,2));
+			}
+		}
+	}
+	
+	public int findProduct(Product p){
+		List<Record> pro_list = Db.find("select 1 from product_data where house_detail = ?",p.getHouse_detail());
+		return pro_list.size();
+		
 	}
 	
 }

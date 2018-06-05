@@ -24,7 +24,9 @@ public class ExcelExportUtil {
 	public static String getTitle(){
 		Date date = new Date();
 		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");  
-	     String title=dateFormat.format(date)+"_统计数据.xls";  
+		Date as = new Date(new Date().getTime()-24*60*60*1000);
+		  String time = dateFormat.format(as);
+	     String title=time+"_统计数据.xls";  
 	     return title;
 	}
 	

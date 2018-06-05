@@ -16,21 +16,31 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class DataCapture {
+	private ThreadLocal<WebClient> clientThreadLocal;
+	public DataCapture(){
+		clientThreadLocal = new ThreadLocal<WebClient>();
+	}
 	public Document getDoc(String url) throws FailingHttpStatusCodeException, MalformedURLException, IOException{
+		
 		//构造一个webClient 模拟Chrome 浏览器
-		WebClient webClient = new WebClient(BrowserVersion.CHROME);
-		//屏蔽日志信息
-		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
-		        "org.apache.commons.logging.impl.NoOpLog");
-		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
-		//支持JavaScript
-		webClient.getOptions().setJavaScriptEnabled(true);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setActiveXNative(false);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setThrowExceptionOnScriptError(false);
-		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		webClient.getOptions().setTimeout(5000);
+		WebClient webClient = null;
+		
+		if((webClient = clientThreadLocal.get())==null){
+			webClient = new WebClient(BrowserVersion.CHROME);
+			//屏蔽日志信息
+			LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
+			        "org.apache.commons.logging.impl.NoOpLog");
+			java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+			//支持JavaScript
+			webClient.getOptions().setJavaScriptEnabled(false);
+			webClient.getOptions().setCssEnabled(false);
+			webClient.getOptions().setActiveXNative(false);
+			webClient.getOptions().setCssEnabled(false);
+			webClient.getOptions().setThrowExceptionOnScriptError(false);
+			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+//			webClient.getOptions().setTimeout(10000);
+			clientThreadLocal.set(webClient);
+		}
 		HtmlPage rootPage;
 			rootPage = webClient.getPage(url);
 		//设置一个运行JavaScript的时间
