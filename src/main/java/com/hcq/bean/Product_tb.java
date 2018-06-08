@@ -57,6 +57,8 @@ public class Product_tb extends Model<Product_tb>{
 	private String lease; //租赁情况
 	private String itemUrl; //淘宝所需商品链接
 	private String type2;
+	private int signCount; //报名人数
+	private String currprice; //当前价
 	public Product_tb() {
 		super();
 	}
@@ -74,6 +76,23 @@ public class Product_tb extends Model<Product_tb>{
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	
+	public int getSignCount() {
+		return signCount;
+	}
+
+	public void setSignCount(int signCount) {
+		this.signCount = signCount;
+	}
+
+	public String getCurrprice() {
+		return currprice;
+	}
+
+	public void setCurrprice(String currprice) {
+		this.currprice = currprice;
 	}
 
 	public String getCity() {
@@ -474,8 +493,30 @@ public class Product_tb extends Model<Product_tb>{
 
 	@Override
 	public String toString() {
-		return "Product_tb [startDate=" + startDate + ", endDate=" + endDate
-				+ ", result=" + result + ", itemUrl=" + itemUrl + "]";
+		return "Product_tb [id=" + id + ", city=" + city + ", title=" + title
+				+ ", addr=" + addr + ", community_name=" + community_name
+				+ ", start=" + start + ", startDate=" + startDate + ", end="
+				+ end + ", endDate=" + endDate + ", initialPrice="
+				+ initialPrice + ", currentPrice=" + currentPrice
+				+ ", consultPrice=" + consultPrice + ", albumId=" + albumId
+				+ ", vendorId=" + vendorId + ", shopName=" + shopName
+				+ ", countNum=" + countNum + ", intermediary=" + intermediary
+				+ ", house_type=" + house_type + ", plate=" + plate
+				+ ", degree=" + degree + ", marketPrice=" + marketPrice
+				+ ", section=" + section + ", around=" + around + ", list_pic="
+				+ list_pic + ", house_pic=" + house_pic + ", taxation_num="
+				+ taxation_num + ", commission=" + commission + ", cost="
+				+ cost + ", result=" + result + ", is_choice=" + is_choice
+				+ ", house_detail=" + house_detail + ", house_theme="
+				+ house_theme + ", premium=" + premium + ", premium_rate="
+				+ premium_rate + ", type=" + type + ", build_area="
+				+ build_area + ", bond=" + bond + ", collection_date="
+				+ collection_date + ", structure=" + structure + ", tel=" + tel
+				+ ", bidCount=" + bidCount + ", taxation=" + taxation
+				+ ", floor=" + floor + ", completionDate=" + completionDate
+				+ ", lease=" + lease + ", itemUrl=" + itemUrl + ", type2="
+				+ type2 + ", signCount=" + signCount + ", currprice="
+				+ currprice + "]";
 	}
 
 	

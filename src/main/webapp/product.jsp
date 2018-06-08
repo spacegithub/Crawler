@@ -56,7 +56,7 @@ table.gridtable td {
        });  
      }  
     </script>   -->
-    <p><a href="/jfinal/product/getAllMsg">导出数据</a>
+    <p><a href="http://catch.dai-kuan.cn/catchMsg/product/getAllMsg">导出数据</a>
 	<table class="gridtable" >
 		<th>区域</th>
 		<th>标题</th>

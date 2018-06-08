@@ -52,6 +52,8 @@ public class Product extends Model<Product> {
 	private String lease; //租赁情况
 	private String itemUrl; //淘宝所需商品链接
 	private String type2;
+	private int signCount; //报名人数
+	private String currprice; //当前价
 	public Product() {
 		super();
 	}
@@ -451,6 +453,23 @@ public class Product extends Model<Product> {
 
 	public void setType2(String type2) {
 		this.type2 = type2;
+	}
+
+	
+	public int getSignCount() {
+		return signCount;
+	}
+
+	public void setSignCount(int signCount) {
+		this.signCount = signCount;
+	}
+
+	public String getCurrprice() {
+		return currprice;
+	}
+
+	public void setCurrprice(String currprice) {
+		this.currprice = currprice;
 	}
 
 	private String transferLongToDate(String dateFormat, Long millSec) {
